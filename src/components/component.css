@@ -1,0 +1,24 @@
+.card-header{
+    background-color: lightslategray;
+    text-align: center ;
+  }
+  p{
+      color:red;
+  }
+  label{
+      font-weight:bold;
+  }
+  .card{
+     
+     background-color:lightblue;
+     margin-top  :40px;
+     margin-left :300px;
+     margin-right:300px;
+  }
+  .card-body{
+      align-items: center;
+  }
+  .acctDetails{
+      text-align:center;
+      background-color:darksalmon;
+  }
