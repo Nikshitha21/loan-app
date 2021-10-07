@@ -1,7 +1,8 @@
 
 import NavBar from './components/Layout/Navbar';
-//import Registration from './components/Registration';
-import AddCustomer from './components/AddCustomer';
+import Registration from './components/Registration';
+//import AddCustomer from './components/AddCustomer';
+import Home from './components/home';
 import Login from './components/Login';
 import ApplyLoan from './components/ApplyLoan';
 import Education from './components/Education';
@@ -10,22 +11,21 @@ import Update from './components/Update';
 import AccountDetails from './components/AccountDetails';
 import 'bootstrap/dist/css/bootstrap.css';
 import {BrowserRouter as Router,Route,Switch} from 'react-router-dom';
-import LoginWelcome from './components/LoginWelcome';
 
 function App(){
   return (
    <Router>
      <div>
-     <NavBar/>
      <Switch>
        <Route exact path='/AccountDetails' component={AccountDetails}/>
-       <Route exact path='/' component={AddCustomer}/>
-       <Route exact path='/Login' component={Login}/>
+       <Route exact path='/Register' component={Registration}/>
+       <Route exact path='/' component={Login}/>
        <Route exact path='/ApplyLoan' component={ApplyLoan}/>
        <Route exact path='/Education' component={Education}/>
        <Route exact path='/Personal' component={Personal}/>
        <Route exact path='/Update' component={Update}/>
-       <Route exact path='/LoginWelcome' component={LoginWelcome}/>
+       <Route exact path='/Home' component={Home}/>
+      
      
     </Switch>
   </div>

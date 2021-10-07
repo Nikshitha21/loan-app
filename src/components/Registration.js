@@ -7,8 +7,9 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {connect, useDispatch} from 'react-redux';
 import { addUser } from "../actions/CustActions";
 import './component.css';
-
-
+import { useHistory } from "react-router";
+import {Link} from 'react-router-dom';
+import NavBar from './Layout/Navbar';
 
 const schema = yup.object({
   Name: yup.string().required("Name is required").matches(/^[A-Za-z ]+/,'Name shold contain spaces and alphabets'),
@@ -44,12 +45,22 @@ const schema = yup.object({
 
 }).required();
 
-function Registration() {
+function AddCustomer(props) {
   let dispatch=useDispatch();
   const { register,setValue, handleSubmit, formState:{ errors },reset } = useForm({
     resolver: yupResolver(schema)
   });
-
+  // var today = new Date();
+  //   var month = "";
+  //   if((today.getMonth()+1) <10){
+  //     month = "0"+(today.getMonth()+1)
+  //   }
+  //   else{
+  //     month = (today.getMonth()+1)
+  //   }
+  //   var date = today.getFullYear()+'-'+month+'-'+today.getDate();
+  var date=new Date().toISOString().substr(0,10);
+  console.log(date);
   const calculateAge = (dob1) => {
     var today = new Date();
     var birthDate = new Date(dob1);
@@ -70,16 +81,7 @@ function Registration() {
       return false;
     }
     // set Registration Date
-    var today = new Date();
-    var month = "";
-    if((today.getMonth()+1) <10){
-      month = "0"+(today.getMonth()+1)
-    }
-    else{
-      month = (today.getMonth()+1)
-    }
-    var date = today.getFullYear()+'-'+month+'-'+today.getDate();
-    setValue("regDate", date);
+  
     //Generate Account Number
     var AccountNo ="";
     var randNum1 =Math.floor(1000 + Math.random()*9000);
@@ -91,8 +93,9 @@ function Registration() {
     data.accountNo = AccountNo
 
     // Generate Customer id
-    var randomNum ="R-"+ Math.floor(Math.random()*(999-100+1)+100);
+    var randomNum =Math.floor(Math.random()*(999-100+1)+100);
     data.CustomerId = randomNum;
+    
 
     //Citizen Status
     if(age > 18 && age <= 60){
@@ -104,28 +107,27 @@ function Registration() {
      //InitialDepositAmount
      if(data.acctType==="Saving"){
       setValue("initialDepositAmt",5000);
+      data.initialDepositAmt=5000;
     }
     else{
       setValue("initialDepositAmt",0);
+      data.initialDepositAmt=0;
     }
 
     return true;
   }
   
-  
+  let history=useHistory();
   const onSubmit = (data) =>{
         onValidate(data)
         console.log(data)
-        if(data.age>18){
-        document.getElementById('idGenerate').innerHTML="<div className='card-header' ><b > CustomerId:</b>"+data.CustomerId+"</div><br><div className='card-header'>Account Number:"+data.accountNo+"</div>"
-       
-  } 
   dispatch(addUser(data));
+  history.push('/');
 }
   
   return (
-    
-    
+    <>
+    <NavBar/>
          <div className="card m-3" id='idGenerate'>
             <h1 className="card-header">Customer Registration</h1>
             <div className="card-body">
@@ -133,20 +135,20 @@ function Registration() {
               
                  <div className="row">
                    
-                        <div className="col-sm-3">
+                        <div className="col">
                               <label>Name</label> 
                               <input {...register("Name")} />
                               <p>{errors.Name?.message}</p>
                          </div>
                    
     
-                         <div className="col-sm-4">
+                         <div className="col">
                              <label>UserName</label>
                                <input {...register("userName")} />
                                <p>{errors.userName?.message}</p>
                          </div> 
                    
-                         <div className="col-sm-5">
+                         <div className="col">
                              <label>Password</label>
                                <input {...register("password")} type="password"/>
                                <p>{errors.password?.message}</p>
@@ -244,22 +246,22 @@ function Registration() {
                          </div> 
                          </div>
                          <div className="row">
-                         <div className="col-4">
+                         <div className="col">
                              <label>Contact Number</label>
                                <input {...register("contact")} />
                                <p>{errors.contact?.message}</p>
                          </div> 
-                         <div className="col-4">
+                         <div className="col">
                              <label>Date Of Birth</label>
-                               <input {...register("dob")} type="date"/>
+                               <input {...register("dob")} type="date" max={date}/>
                                <p>{errors.dob?.message}</p>
                          </div> 
-                         
                          <div className="col">
                              <label>Registration Date</label>
-                               <input {...register("regDate")} type="date" readOnly/>
+                               <input {...register("regDate")} type="date" defaultValue={date} disabled/>
                                <p>{errors.regDate?.message}</p>
                          </div> 
+                        
 
                          </div>
                          <div className="row">
@@ -292,7 +294,7 @@ function Registration() {
                          <div className="row">
                          <div className="col">
                              <label>Initial Deposit Amount</label>
-                               <input {...register("initialDepositAmt")} type="number" readOnly/>
+                               <input {...register("initialDepositAmt")} type="number" />
                                <p>{errors.initialDepositAmt?.message}</p>
                          </div> 
                          <div className="col">
@@ -324,17 +326,17 @@ function Registration() {
                                <p>{errors.holderAddress?.message}</p>
                          </div> 
                              </div>
-      <input class="btn btn-dark" type="submit" />&ensp;
-      <a href='/Login'>Already a user? Login</a>
+      <input className="btn btn-dark" type="submit" />&ensp;
+      <Link to='/'>Already a user? Login</Link>
      
     </form>
     </div>
     </div>
-   
+   </>
   );
 }
 
-export default connect(null,{addUser}) (Registration);
+export default connect(null,{addUser}) (AddCustomer);
 
 /* <Link to="/userLogin" variant = "body2">
 Already an Existing User ? Login here 

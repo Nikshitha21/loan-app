@@ -1,195 +1,167 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
+import React,{useState} from "react";
+
+//import { yupResolver } from '@hookform/resolvers/yup';
+//import * as yup from "yup";
 //import { Container, Row, Col} from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
-import {connect, useDispatch} from 'react-redux';
-import { addUser } from "../actions/CustActions";
+// import {connect, useDispatch} from 'react-redux';
+//import { addUser } from "../actions/CustActions";
 import './component.css';
-import { useHistory } from "react-router";
+//import { useHistory } from "react-router";
+import Axios from "axios";
 
-
-const schema = yup.object({
-  Name: yup.string().required("Name is required").matches(/^[A-Za-z ]+/,'Name shold contain spaces and alphabets'),
-  userName: yup.string().required(),
-  password:yup.string().min(6).max(12).required(),
-  guardianType:yup.string().required(),
-  guardianName:yup.string().required(),
-  Address:yup.string().required(),
-  citizenShip:yup.string().required(),
-  state:yup.string().required(),
-  country:yup.string().required(),
-  email: yup.string()
-         .required('Email is required')
-         .email('Email is invalid'),
-  gender:yup.string().required(),
-  maritalStatus:yup.string().required(),
-  contact:yup.string()
-          .required('Contact Number is required')
-          .matches(/[789]{1}[0-9]{9}/, 'Contact Number should start with 789 and contains 10 digits'),
-  dob: yup.string()
-         .required('Date of Birth is required'),
-        //  .matches(/(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[012])-\d{4}/, 'DOB in DD-MM-YYYY format'),
-  acctType: yup.string().required(),   
-  branchName  : yup.string().required(), 
-  ccitizenStatus: yup.string().required(), 
-  //initialDepositAmt:yup.number().positive().integer("Deposit Amount is required").required("Deposit Amount is required"),
-  proofType:yup.string().required(),
-  documentNo:yup.string().required().min(10).max(12),
-  holderName:yup.string().required(),
-  holderAcctNo:yup.string().required().matches(/\d{12}/,"Account Number contains 12 digits"),
-  holderAddress:yup.string().required(),
-
-
-}).required();
 
 function AddCustomer(props) {
-  let dispatch=useDispatch();
-  const { register,setValue, handleSubmit, formState:{ errors },reset } = useForm({
-    resolver: yupResolver(schema)
-  });
+  // var today = new Date();
+  //   var month = "";
+  //   if((today.getMonth()+1) <10){
+  //     month = "0"+(today.getMonth()+1)
+  //   }
+  //   else{
+  //     month = (today.getMonth()+1)
+  //   }
+  //   var date = today.getFullYear()+'-'+month+'-'+today.getDate();
+  var date=new Date().toISOString().substr(0,10);
+  console.log(date);
+ 
+ let [userObj,setUserObj]=useState({
+  name:null,
+  userName:null,
+  password:null,
+  guardianType:'Father',
+  guardianName:null,
+  address:null,
+  citizenship:null,
+  state:'Telangana',
+  country:'India',
+  email:null,
+  maritalStatus:'Single',
+  contact:null,
+  dob:null,
+  regDate:date,
+  acctType:'Savings',
+  branchName:'enter branch name',
+  citizenStatus:'Minor',
+  depositAmount:'0',
+  proofType:'pan',
+  docNumber:'9090909090',
+  holderName:'nikshitha',
+  holderAcctNumber:'787878787',
+  holderAddress:'hhdkjkjd',
+})
+let threshold={
+  name:userObj.name,
+  userName:userObj.userName,
+  password:userObj.password,
+  guardianType:userObj.guardianType,
+  guardianName:userObj.guardianName,
+  address:userObj.sddress,
+  citizenship:userObj.citizenship,
+  state:userObj.state,
+  country:userObj.country,
+  email:userObj.email,
+  maritalStatus:userObj.maritalStatus,
+  contactNo:userObj.contact,
+  dob:userObj.dob,
+  regDate:userObj.regDate,
+  accType:userObj.acctType,
+  branchName:userObj.branchName,
+  citizenStatus:userObj.citizenStatus,
+  depositAmmount:userObj.depositAmount,
+ proofType:userObj.proofType,
+ docNumber:userObj.docNumber,
+ holderName : userObj.holderName,
+ holderAcctNumber:userObj.holderAcctNumber,
+ holderAddress:userObj.holderAddress,
 
-  const calculateAge = (dob1) => {
-    var today = new Date();
-    var birthDate = new Date(dob1);
-    var currAge = today.getFullYear() - birthDate.getFullYear();
-    var m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
-    {
-        currAge--;
-    }
-    return currAge;
-  }
-  const onValidate=(data)=>{
-    //Age Validation
-    let age = calculateAge(data.dob);
-    data.age=age;
-    if( age <= 18){
-      alert("Age must be greater than 18");
-      return false;
-    }
-    // set Registration Date
-    var today = new Date();
-    var month = "";
-    if((today.getMonth()+1) <10){
-      month = "0"+(today.getMonth()+1)
-    }
-    else{
-      month = (today.getMonth()+1)
-    }
-    var date = today.getFullYear()+'-'+month+'-'+today.getDate();
-    //setValue("regDate", date);
-    console.log(date);
-    data.regDate=date;
-    //Generate Account Number
-    var AccountNo ="";
-    var randNum1 =Math.floor(1000 + Math.random()*9000);
-    var randNum2 =Math.floor(1000 + Math.random()*9000);
-    var randNum3 =Math.floor(1000 + Math.random()*9000);
-    var randNum4 =Math.floor(1000 + Math.random()*9000);
-
-    AccountNo=AccountNo+randNum1+randNum2+randNum3+randNum4
-    data.accountNo = AccountNo
-
-    // Generate Customer id
-    var randomNum ="R-"+ Math.floor(Math.random()*(999-100+1)+100);
-    data.CustomerId = randomNum;
-    
-
-    //Citizen Status
-    if(age > 18 && age <= 60){
-      setValue("ccitizenStatus","Normal");
-    }
-    else{
-      setValue("ccitizenStatus","Senior");
-    }
-     //InitialDepositAmount
-     if(data.acctType==="Saving"){
-      setValue("initialDepositAmt",5000);
-      data.initialDepositAmt=5000;
-    }
-    else{
-      setValue("initialDepositAmt",0);
-      data.initialDepositAmt=0;
-    }
-
-    return true;
-  }
-  
-  let history=useHistory();
-  const onSubmit = (data) =>{
-        onValidate(data)
-        console.log(data)
-        if(data.age>18){
-        //document.getElementById('idGenerate').innerHTML="<div className='card-header' ><b > CustomerId:</b>"+data.CustomerId+"</div><br><div className='card-header'>Account Number:"+data.accountNo+"</div>"
-       history.push({pathname:'/AccountDetails',state:{name:data.Name,id:data.CustomerId,acctNo:data.accountNo}});
-  } 
-  dispatch(addUser(data));
 }
-  
+const submitHandler=(event)=>{
+  event.preventDefault();
+  Axios
+  ({
+  method:"Post",
+  url:'https://localhost:44347/api/UserDetails/',
+  data:JSON.stringify(threshold),
+headers:{"Content-Type":"application/json"},
+})
+.then(response=>{
+ console.log(response);
+})
+.catch(err=>{
+  console.log(err);
+}
+)}
+const handleChange = (e) => {
+  const {id , value} = e.target   
+  setUserObj(prevState => ({
+      ...prevState,
+      [id] : value
+  })); 
+}
+
   return (
     
     
          <div className="card m-3" id='idGenerate'>
             <h1 className="card-header">Customer Registration</h1>
             <div className="card-body">
-            <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
-              
+            <form onSubmit={submitHandler}>
+                
                  <div className="row">
                    
                         <div className="col">
-                              <label>Name</label> 
-                              <input {...register("Name")} />
-                              <p>{errors.Name?.message}</p>
+                              <label for="name">Name</label> 
+                              <input type="text" name="name" value={userObj.name} onChange={handleChange} required/>
+                            
+    
                          </div>
                    
     
                          <div className="col">
-                             <label>UserName</label>
-                               <input {...register("userName")} />
-                               <p>{errors.userName?.message}</p>
+                             <label for="userName">UserName</label>
+                               <input type="text" name="userName" value={userObj.userName} onChange={handleChange}/>
+              
                          </div> 
                    
                          <div className="col">
-                             <label>Password</label>
-                               <input {...register("password")} type="password"/>
-                               <p>{errors.password?.message}</p>
+                             <label for="password">Password</label>
+                               <input type="password" name="password" type="password" value={userObj.password} onChange={handleChange}/>
+              
                          </div> 
                    
                   
                     </div>
                     <div className="row">
                          <div className="col">
-                             <label>Guardian Type</label>
-                             <select {...register("guardianType")}>
+                             <label for="guardianType">Guardian Type</label>
+                             <select name="guardianType" value={userObj.guardianType} onChange={handleChange}>
                                 <option value="">Select..</option>
                                 <option value="Father">Father</option>
                                 <option value="Husband">Husband</option>
 
                              </select>
-                               <p>{errors.guardianType?.message}</p>
+                      
                          </div> 
                          <div className="col">
-                             <label>GuardianName</label>
-                               <input {...register("guardianName")} />
-                               <p>{errors.guardianName?.message}</p>
+                             <label for="guardianName">GuardianName</label>
+                               <input type="text" name="guardianName" value={userObj.guardianName} onChange={handleChange}/>
+                      
                          </div>      
                          <div className="col">
-                             <label>Address</label>
-                               <input {...register("Address")} />
-                               <p>{errors.Address?.message}</p>
+                             <label for="address">Address</label>
+                               <input type="text" name="address" value={userObj.address} onChange={handleChange} />
+            
                          </div> 
                         </div>
                         <div className="row">     
                          <div className="col">
-                             <label>CitizenShip</label>
-                               <input {...register("citizenShip")} />
-                               <p>{errors.citizenShip?.message}</p>
+                             <label for="citizenship">CitizenShip</label>
+                               <input type="text" name="citizenship" value={ userObj.citizenship} onChange={handleChange} />
+                    
                          </div> 
                          <div className="col">
-                             <label>State</label>
-                             <select {...register("state")}>
+                             <label for="state">State</label>
+                             <select  name="state" value={userObj.state} onChange={handleChange}>
                                 <option value="">Select..</option>
                                 <option value="AndhraPradesh">AndhraPradesh</option>
                                 <option value="TamilNadu">TamilNadu</option>
@@ -202,11 +174,11 @@ function AddCustomer(props) {
                                 <option value="Rajasthan">Rajasthan</option>
                                 <option value="MadhyaPradesh">MadhyaPradesh</option>
                              </select>
-                               <p>{errors.state?.message}</p>
+        
                          </div> 
                          <div className="col">
-                             <label>Country</label>
-                             <select {...register("country")}>
+                             <label for="country">Country</label>
+                             <select name="country" value={userObj.country} onChange={handleChange}>
                                 <option value="">Select..</option>
                                 <option value="Afghanisthan">Afghanisthan</option>
                                 <option value="Australia">Australia</option>
@@ -219,117 +191,109 @@ function AddCustomer(props) {
                                 <option value="Malaysia">Malaysia</option>
                                 <option value="Singapore">Singapore</option>
                              </select>
-                               <p>{errors.country?.message}</p>
+            
                          </div>
                          </div>
                          <div className="row"> 
                          <div className="col">
-                             <label>Email Address</label>
-                               <input {...register("email")} />
-                               <p>{errors.email?.message}</p>
+                             <label for="email">Email Address</label>
+                               <input type="email" value={userObj.email} name="email" onChange={handleChange}/>
+        
                          </div> 
-                         <div className="col">
-                             <label>Gender</label>
-                             <select {...register("gender")}>
-                                  <option value="female">female</option>
-                                  <option value="male">male</option>
-                                  <option value="other">other</option>
-                             </select>
-                             <p>{errors.gender?.message}</p>
-                         </div>
-                         <div className="col">
-                             <label>Marital Status</label>
-                             <select {...register("maritalStatus")}>
+        
+                         
+                         <div  className="col">
+                             <label for="maritalStatus">Marital Status</label>
+                             <select name="maritalStatus" value={userObj.maritalStatus} onChange={handleChange}>
                                   <option value="">Select..</option>
                                   <option value="Single">Single</option>
                                   <option value="Married">Married</option>
                                   <option value="Divorced">Divorced</option>
                              </select>
-                             <p>{errors.maritalStatus?.message}</p>
+                      
                          </div> 
                          </div>
                          <div className="row">
                          <div className="col">
-                             <label>Contact Number</label>
-                               <input {...register("contact")} />
-                               <p>{errors.contact?.message}</p>
+                             <label for="contact">Contact Number</label>
+                               <input type="number" name="contact" value={userObj.contact} onChange={handleChange} />
+            
                          </div> 
                          <div className="col">
-                             <label>Date Of Birth</label>
-                               <input {...register("dob")} type="date"/>
-                               <p>{errors.dob?.message}</p>
+                             <label for="dob">Date Of Birth</label>
+                               <input type="date" name="dob" max={date} value={userObj.dob} onChange={handleChange}/>
+    
                          </div> 
                          <div className="col">
-                             <label>Registration Date</label>
-                               <input {...register("regDate")} type="date" readOnly/>
-                               <p>{errors.regDate?.message}</p>
+                             <label for="regDate">Registration Date</label>
+                               <input type="date" name="regDate"onChange={handleChange} defaultValue={userObj.regDate} disabled/>
+            
                          </div> 
                         
 
                          </div>
                          <div className="row">
                          <div className="col">
-                             <label>Account Type</label>
-                             <select {...register("acctType")}>
+                             <label for="acctType">Account Type</label>
+                             <select name="acctType" value={userObj.acctType} onChange={handleChange}>
                                   <option value="">Select..</option>
                                   <option value="Saving">Saving</option>
                                   <option value="Salary">Salary</option>
                              </select>
-                             <p>{errors.acctType?.message}</p>
+            
                          </div>
                          <div className="col">
-                             <label>Branch Name</label>
-                               <input {...register("branchName")} />
-                               <p>{errors.branchName?.message}</p>
+                             <label for="branchName">Branch Name</label>
+                               <input type="text" name="branchName" value={userObj.branchName} onChange={handleChange}/>
+                  
                          </div> 
                          <div className="col">
-                             <label>Citizen Status</label>
-                             <select {...register("ccitizenStatus")}>
+                             <label for="citizenStatus">Citizen Status</label>
+                             <select name="citizenStatus" value={userObj.citizenship} onChange={handleChange}>
                                   <option value="">Select..</option>
                                   <option value="Minor">Minor</option>
                                   <option value="Normal">Normal</option>
                                   <option value="Senior">Senior</option>
                              </select>
-                             <p>{errors.ccitizenStatus?.message}</p>
+                        
                          </div>
                  
                          </div>
                          <div className="row">
                          <div className="col">
-                             <label>Initial Deposit Amount</label>
-                               <input {...register("initialDepositAmt")} type="number" readOnly/>
-                               <p>{errors.initialDepositAmt?.message}</p>
+                             <label for="depositAmount">Initial Deposit Amount</label>
+                               <input  type="number" name="depositAmount" onChange={handleChange} readOnly/>
+                               
                          </div> 
                          <div className="col">
-                             <label>Identification Proof Type</label>
-                               <input {...register("proofType")} />
-                               <p>{errors.proofType?.message}</p>
+                             <label for="proofType">Identification Proof Type</label>
+                               <input type="text" name="proofType" onChange={handleChange}/>
+                
                          </div> 
                          <div className="col">
-                             <label>Identification Document No</label>
-                               <input {...register("documentNo")} />
-                               <p>{errors.documentNo?.message}</p>
+                             <label for="documentNumber">Identification Document No</label>
+                               <input type="text" name="documentNumber" onChange={handleChange} />
+                  
                          </div> 
 
                            </div>
                            <div className="row">
                            <div className="col">
-                             <label>account holder name</label>
-                               <input {...register("holderName")} />
-                               <p>{errors.holderName?.message}</p>
+                             <label for="holderName">account holder name</label>
+                               <input type="text" name="documentNumber" onChange={handleChange} />
+                  
                          </div> 
                          <div className="col">
-                             <label>account holder acc. No</label>
-                               <input {...register("holderAcctNo")} />
-                               <p>{errors.holderAcctNo?.message}</p>
+                             <label for="holderAcctNumber">account holder acc. No</label>
+                               <input type="text" name="holderAcctNumber" onChange={handleChange} />
+                      
                          </div> 
                          <div className="col">
-                             <label>account holder Address</label>
-                               <input {...register("holderAddress")} />
-                               <p>{errors.holderAddress?.message}</p>
+                             <label for="holderAddress">account holder Address</label>
+                               <input type="text" name="holderAddress" onChange={handleChange}/>  
                          </div> 
-                             </div>
-      <input class="btn btn-dark" type="submit" />&ensp;
+                       </div>      
+                             <input type='submit'value='Register'/>
       <a href='/Login'>Already a user? Login</a>
      
     </form>
@@ -339,7 +303,7 @@ function AddCustomer(props) {
   );
 }
 
-export default connect(null,{addUser}) (AddCustomer);
+export default  AddCustomer;
 
 /* <Link to="/userLogin" variant = "body2">
 Already an Existing User ? Login here 

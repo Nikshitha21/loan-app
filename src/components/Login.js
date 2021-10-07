@@ -1,63 +1,65 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
+import React,{useState} from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import './component.css';
 import { useHistory } from "react-router";
+import {Link} from "react-router-dom";
+import axios from 'axios';
+import NavBar from './Layout/Navbar';
 
 
-
-const schema = yup.object({
-  userName: yup.string().required(),
-  password:yup.string().required(),
-}).required();
-
-export default function Login() {
+function Login(props) {
+  const [state , setState] = useState({
+    userId : '',
+    password : '',
+})
 let history=useHistory();
-    const { register, handleSubmit, formState:{ errors },reset } = useForm({
-      resolver: yupResolver(schema)
-    });
-    const onSubmit = (data) =>{
-
-      console.log(data);
-      if(data.userName==='user'){
-        if(data.password==='user123'){
-          history.push({pathname:'/LoginWelcome',state:{uname:data.userName}});
-        }
-        else{
-          alert("incorrect password");
-        }
+  
+    const submitHandler = (event) =>{
+      event.preventDefault();
+        axios.post("https://localhost:44347/login/",
+        {
+          userName:state.userId,
+          password:state.password
+        }).then(response=>{
+          console.log(response);
+          history.push('/AccountDetails',)
+        }).catch(err=>console.log(err)
+        )
         
-      }
-      else{
-        alert("incorrect username");
-      }
       
-       
     } 
+    const handleChange = (e) => {
+        
+      setState({...state, [e.target.name]: e.target.value});
+      console.log(state.userId,state.password);
+  } 
     return (
-         <div className="card m-3" id='welcome'>
-            <h1 className="card-header">Login to portal</h1>
-            <div className="card-body">
-            <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
+      <>
+      <NavBar/>
+      <div className="card m-3" id='welcome'>
+<h1 className="card-header">Login to portal</h1>
+<div className="card-body">
+<form onSubmit={submitHandler} >
+           
+            <div className="col">
+                 <label for="userId">UserName</label>
+                   <input type="text" name="userId" className="fadeIn second" onChange={handleChange} required/>
                   
-                        <div className="col">
-                             <label>UserName</label>
-                               <input {...register("userName")} />
-                               <p>{errors.userName?.message}</p>
-                         </div> 
+             </div> 
+             
+             <div className="col">
+                 <label for="password">Password</label>
+                   <input type="password" name="password" className="fadeIn third" onChange={handleChange} required/>
                    
-                         <div className="col">
-                             <label>Password</label>
-                               <input {...register("password")} type="password"/>
-                               <p>{errors.password?.message}</p>
-                         </div> 
-                         <input  className=' btn btn-dark' type="submit" value="Login"/>
-                         
-             </form>
-            </div>
-            </div>
-                     
+             </div> 
+             <input  className="fadeIn fourth" type="submit" value="Login"/>
+            <Link to='/Register'>New User?Register</Link>
+             
+ </form>
+</div>
+</div>
+        
+      </>               
   );
 }
+export default Login;

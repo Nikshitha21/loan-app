@@ -1,76 +1,92 @@
-import React from "react";
+import React,{useState} from "react";
 import 'bootstrap/dist/css/bootstrap.css';
-import { useForm } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
 import './component.css';
 import { Link } from "react-router-dom";
-
-const schema = yup.object({
-    courseFee:yup.string().required(),
-    course:yup.string().required(),
-    fatherName:yup.string().required(),
-    fatherOccupation:yup.string().required(),
-    fatherExp:yup.string().required(),
-    fatherExpCC:yup.string().required(),
-    rationCard:yup.string().required(),
-    annualIncome:yup.number().required(),
-}).required();
-
+import axios from "axios";
+import NavBar from "./Layout/Navbar";
+import { useHistory } from "react-router";
 const EducationLoan=()=>{
-    const { register, handleSubmit, formState:{ errors } } = useForm({
-        resolver: yupResolver(schema)
-      });
-      const onSubmit = (data) =>{
-        
-  } 
+       let history=useHistory();
+       const [state,setState]=useState({
+              courseFee:'',
+              course:'',
+              fatherName:'',
+              fatherOccupation:'',
+              fatherTotalExp:'',
+              fatherCurExp:'',
+              rationCardNo:'',
+              annualIncome:'',
 
+       })
+      const onSubmit = (event) =>{
+             event.preventDefault();
+        axios.post('https://localhost:44313/api/EducationLoans',
+        {
+               courseFee:state.courseFee,
+               course:state.course,
+               fatherName:state.fatherName,
+               faherOccupation:state.fatherOccupation,
+               experience:state.fatherTotalExp,
+               curCompanyExp:state.fatherCurExp,
+               rationCardNo:state.rationCardNo,
+               annualIncome:state.annualIncome
+        }).then(response=>{
+              console.log(response);
+              history.push('/home');
+        }
+              )
+  } 
+  const handleEvent=(e)=>{
+         setState({...state,[e.target.name]:e.target.value});
+         console.log(state);
+  }
     return(
         <>
+        <NavBar/>
         <div className="card m-3">
             <h1 className="card-header">Education Loan</h1>
             <div className="card-body">
-            <form onSubmit={handleSubmit(onSubmit)} >
+            <form onSubmit={onSubmit} >
 
             <div>
-                   <label>Course Fee</label> 
-                   <input {...register("courseFee")} />
-                   <p>{errors.courseFee?.message}</p>
+                   <label for="courseFee">Course Fee</label> 
+                   <input type="number" name="courseFee" onChange={handleEvent} required/>
+                  
             </div>
             <div>
-                   <label>Course</label> 
-                   <input {...register("course")} />
-                   <p>{errors.course?.message}</p>
+                   <label for="course">Course</label> 
+                   <input type="text" name="course" onChange={handleEvent} required/>
+                  
             </div>
             <div>
-                   <label>Father Name</label> 
-                   <input {...register("fatherName")} />
-                   <p>{errors.fatherName?.message}</p>
+                   <label for="fatherName">Father Name</label> 
+                   <input type="text" name="fatherName" onChange={handleEvent} required/>
+                 
             </div>
             <div>
-                   <label>Father Occupation</label> 
-                   <input {...register("fatherOccupation")} />
-                   <p>{errors.fatherOccupation?.message}</p>
+                   <label for="fatherOccupation">Father Occupation</label> 
+                   <input type="text" name="fatherOccupation" onChange={handleEvent} required />
+                  
             </div>
             <div>
-                   <label>Father’s Total Experience</label> 
-                   <input {...register("fatherExp")} />
-                   <p>{errors.fatherExp?.message}</p>
+                   <label for="fatherTotalExp">Father’s Total Experience</label> 
+                   <input type="number" name="fatherTotalExp" onChange={handleEvent} required />
+                 
             </div>
             <div>
-                   <label>Father’s Exp with Current company</label> 
-                   <input {...register("fatherExpCC")} />
-                   <p>{errors.fatherExpCC?.message}</p>
+                   <label for="fatherExp">Father’s Exp with Current company</label> 
+                   <input type="number" name="fatherCurExp" onChange={handleEvent} required/>
+                   
             </div>
             <div>
-                   <label>Ration Card No</label> 
-                   <input {...register("rationCard")} />
-                   <p>{errors.rationCard?.message}</p>
+                   <label for="rationCardNo">Ration Card No</label> 
+                   <input type="number" name="rationCardNo" onChange={handleEvent} required />
+                   
             </div>
             <div>
-                   <label>Annual Income</label> 
-                   <input {...register("annualIncome")} />
-                   <p>{errors.annualIncome?.message}</p>
+                   <label for="annualIncome">Annual Income</label> 
+                   <input type="number" name="annualIncome" onChange={handleEvent}  required/>
+                  
             </div>
 
            <input className="btn btn-dark" type="submit"/> &ensp;

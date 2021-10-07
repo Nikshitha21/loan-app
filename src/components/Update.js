@@ -4,17 +4,19 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import 'bootstrap/dist/css/bootstrap.css';
 import './component.css';
-
+import { useDispatch ,Connect, connect} from "react-redux";
+import { updateUser } from "../actions/CustActions";
+import NavBar from "./Layout/Navbar";
+import { Link } from "react-router-dom";
 
 
 
 const schema = yup.object({
-  CustomerId: yup.string().required("CustomerId is required").matches(/^[0-9]{3}/,'CustomerId should not contain spaces and alphabets'),
+  CustomerId: yup.number().required("CustomerId is required"),
   Name: yup.string().required(),
-  AcctNo:yup.string().required().matches(/^\d{16}/,"Account Number contains 16 digits"),
+  AcctNo:yup.string().required().matches(/^\d{12}/,"Account Number contains 16 digits"),
   country:yup.string().required(),
   state:yup.string().required(),
-  gender:yup.string().required(),
   dob: yup.date()
           .required('Date of Birth is required'),
   bankName  : yup.string().required(),
@@ -40,26 +42,21 @@ const schema = yup.object({
  
 }).required();
  function Update() {
+   let dispatch=useDispatch();
   const { register,setValue, handleSubmit, formState:{ errors },reset } = useForm({
     resolver: yupResolver(schema)
   });
-  var today = new Date();
-    var month = "";
-    if((today.getMonth()+1) <10){
-      month = "0"+(today.getMonth()+1)
-    }
-    else{
-      month = (today.getMonth()+1)
-    }
-    var date = today.getFullYear()+'-'+month+'-'+today.getDate();
-    setValue("regDate", date);
+ 
+  var date=new Date().toISOString().substr(0,10);
+  
   
   const onSubmit = (data) =>{
+    dispatch(updateUser(data));
   } 
   
   return (
-    
-    
+    <>
+    <NavBar/>    
          <div className="card m-3"> 
             <h1 className="card-header">Update Account Details</h1>
             <div className="card-body">
@@ -79,6 +76,19 @@ const schema = yup.object({
                                <input {...register("Name")} />
                                <p>{errors.Name?.message}</p>
                          </div> 
+                         <div className="col">
+                             <label>UserName</label>
+                               <input {...register("userName")} />
+                               <p>{errors.userName?.message}</p>
+                         </div> 
+                   
+                         <div className="col">
+                             <label>Password</label>
+                               <input {...register("password")} type="password"/>
+                               <p>{errors.password?.message}</p>
+                         </div> 
+                         </div>
+                         <div className="row">
                    
                          <div className="col">
                              <label>Account Number</label>
@@ -125,15 +135,7 @@ const schema = yup.object({
                        
                         
                      <div className="row">     
-                        <div className="col">
-                             <label>Gender</label>
-                             <select {...register("gender")}>
-                                  <option value="female">female</option>
-                                  <option value="male">male</option>
-                                  <option value="other">other</option>
-                             </select>
-                             <p>{errors.gender?.message}</p>
-                         </div>
+                        
                          <div className="col">
                              <label>Date Of Birth</label>
                                <input {...register("dob")} type="date"/>
@@ -141,7 +143,7 @@ const schema = yup.object({
                          </div> 
                          <div className="col">
                              <label>Registration Date</label>
-                               <input {...register("regDate")} type="date" readOnly/>
+                               <input {...register("regDate")} type="date" defaultValue={date} disabled/>
                                <p>{errors.regDate?.message}</p>
                          </div> 
                          <div className="col">
@@ -225,6 +227,11 @@ const schema = yup.object({
                                <input {...register("citizenShip")} />
                                <p>{errors.citizenShip?.message}</p>
                          </div> 
+                         <div className="col">
+                             <label>Initial Deposit Amount</label>
+                               <input {...register("initialDepositAmt")} type="number" />
+                               <p>{errors.initialDepositAmt?.message}</p>
+                         </div> 
                      </div>
                      <div className="row">    
                          <div className="col">
@@ -253,12 +260,13 @@ const schema = yup.object({
                                <p>{errors.guardianName?.message}</p>
                          </div>      
                  </div>
-      <input class="btn btn-dark" type="submit" value='Update' />
+      <input className="btn btn-dark" type="submit" value='SaveChanges' />&ensp;
+      <Link to='/' className="btn btn-dark">Log out</Link>
      
     </form>
     </div>
     </div>
-   
+   </>
   );
 }
-export default Update;
+export default connect(null,{updateUser}) (Update);
